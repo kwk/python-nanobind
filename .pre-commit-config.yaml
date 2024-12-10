@@ -1,0 +1,32 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-ast
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: fix-byte-order-marker
+      - id: detect-private-key
+
+  - repo: https://github.com/packit/pre-commit-hooks
+    rev: v1.2.0
+    hooks:
+      # Check if your branch is up-to-date with the upstream.
+      - id: check-rebase
+        args:
+          - https://github.com/kwk/python-nanobind.git
+        # Do not run in pre-commit.ci as it requires an internet access
+        # to verify the rebasing
+        stages: [manual, push]
+      # Validate a package config for Packit
+      - id: validate-config
+
+exclude: ".*\\.patch"
