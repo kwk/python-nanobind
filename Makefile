@@ -102,7 +102,7 @@ help:/
 .PHONY: get-version
 ## Determines the LLVM version given in the llvm.spec file.
 get-version:
-	$(eval version:=$(shell grep -ioP 'Version:\s*\K[^\s]+' $(SPEC)))
+	$(eval version:=$(shell grep -ioP '^Version:\s*\K[^\s]+' $(SPEC)))
 	$(info Version: $(version))
 	@echo > /dev/null
 
