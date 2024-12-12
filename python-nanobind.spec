@@ -2,6 +2,9 @@
 %global toolchain clang
 
 %global giturl https://github.com/wjakob/nanobind
+%global nanobind_src_dir nanobind-%{version}
+%global robin_map_commit_sha 188c45569cc2a5dd768077c193830b51d33a5020
+%global robin_map_src_dir robin-map-%{robin_map_commit_sha}
 
 Name:           python-nanobind
 Version:        2.4.0
@@ -12,6 +15,11 @@ License:        BSD-3-Clause AND MIT
 URL:            https://nanobind.readthedocs.org/
 VCS:            git:%{giturl}.git
 Source0:        %{giturl}/archive/v%{version}/%{name}-%{version}.tar.gz
+Source1:        https://github.com/Tessil/robin-map/archive/%{robin_map_commit_sha}.tar.gz
+
+# See https://github.com/wjakob/nanobind/pull/815
+Patch100:       0001-Properly-install-tsl-robin_map-s-interface-sources.patch
+Patch101:       0001-Revert-chore-use-scikit-build-core-0.10-and-auto-min.patch
 
 BuildArch:      noarch
 
@@ -20,15 +28,7 @@ BuildRequires:  cmake
 BuildRequires:  eigen3-devel
 BuildRequires:  librsvg2
 BuildRequires:  ninja-build
-BuildRequires:  robin-map-devel >= 1.3.0
-BuildRequires:  python%{python3_pkgversion}-devel
-BuildRequires:  python%{python3_pkgversion}-furo
-BuildRequires:  python%{python3_pkgversion}-numpy
-BuildRequires:  python%{python3_pkgversion}-pytest
-BuildRequires:  python%{python3_pkgversion}-scipy
-BuildRequires:  python%{python3_pkgversion}-sphinx
-BuildRequires:  python%{python3_pkgversion}-sphinx-copybutton
-BuildRequires:  python%{python3_pkgversion}-sphinxcontrib-svg2pdfconverter-common
+BuildRequires:  python%{python3_pkgversion}-pytest > 7
 
 %global _description %{expand:
 nanobind is a small binding library that exposes C++ types
@@ -51,7 +51,6 @@ Summary:        Development files for nanobind
 License:        BSD-3-Clause
 Requires:       %{name} = %{version}-%{release}
 Requires:       python%{python3_pkgversion}-nanobind-robin-map-devel = %{version}-%{release}
-Requires:       python3-scikit-build-core
 %description -n python%{python3_pkgversion}-nanobind-devel
 Development files for nanobind.
 
@@ -60,22 +59,20 @@ Development files for nanobind.
 Summary:        C++ implementation of a fast hash map and hash set using robin hood hashing
 License:        MIT
 Requires:       %{name} = %{version}-%{release}
-Requires:       robin-map-devel >= 1.3.0
 %description -n python%{python3_pkgversion}-nanobind-robin-map-devel
 The robin-map library is a C++ implementation of a fast hash
 map and hash set using open-addressing and linear robin hood
 hashing with backward shift deletion to resolve collisions.
 
 %prep
-%autosetup -p1 -n nanobind-%{version}
+%autosetup -N -T -b 1 -n %{robin_map_src_dir}
+%autosetup -N -T -b 0 -n %{nanobind_src_dir}
 
-# Fake existence of ext/robin_map/include to fool naonbind build
-# NOTE: You have to have robin-map-devel installed.
-rm -rfv ext
-%{__mkdir_p} -v ext/robin_map/include/tsl
-ln -svf %{_includedir}/tsl/robin_*.h ext/robin_map/include/tsl
-ln -svf %{_datadir}/licenses/robin-map-devel ext/robin_map/LICENSE
+%patch -p1 -P100
+%patch -p1 -P101
 
+cd ..
+mv -v %{robin_map_src_dir}/* %{nanobind_src_dir}/ext/robin_map
 
 %generate_buildrequires
 %pyproject_buildrequires
@@ -86,9 +83,8 @@ ln -svf %{_datadir}/licenses/robin-map-devel ext/robin_map/LICENSE
     -G Ninja \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_PREFIX=%{python3_sitelib} \
-    -Dtsl-robin-map_DIR=%{_datadir}/cmake/tsl-robin-map/ \
     -DNB_CREATE_INSTALL_RULES=OFF \
-    -DNB_USE_SUBMODULE_DEPS=OFF \
+    -DNB_USE_SUBMODULE_DEPS=ON \
     -DNB_TEST_SANITIZERS_ASAN=OFF \
     -DNB_TEST_SANITIZERS_TSAN=OFF \
     -DNB_TEST_SANITIZERS_UBSAN=OFF \
@@ -106,21 +102,10 @@ ln -svf %{_datadir}/licenses/robin-map-devel ext/robin_map/LICENSE
 rm %{buildroot}%{python3_sitelib}/nanobind/cmake/darwin-ld-cpython.sym
 rm %{buildroot}%{python3_sitelib}/nanobind/cmake/darwin-ld-pypy.sym
 
-# Remove the files that we already ship in robin-map-devel and
-# create symbolic links instead. We need to maintain the directory
-# structure because it is hard-coded in nanobind.
-%{__mkdir_p} -v %{buildroot}%{python3_sitelib}/nanobind/ext/robin_map/include/tsl
-pushd %{buildroot}%{python3_sitelib}/nanobind/ext/robin_map/include/tsl
-ln -svf ../../../../../../../../include/tsl/robin_growth_policy.h .
-ln -svf ../../../../../../../../include/tsl/robin_hash.h .
-ln -svf ../../../../../../../../include/tsl/robin_map.h .
-ln -svf ../../../../../../../../include/tsl/robin_set.h .
-popd
-
-install %{_datadir}/licenses/robin-map-devel/LICENSE %{buildroot}%{python3_sitelib}/nanobind/ext/robin_map/LICENSE
-
 %{__mkdir_p} -v %{buildroot}%{python3_sitelib}/nanobind
 install -m 0755 src/stubgen.py %{buildroot}%{python3_sitelib}/nanobind/stubgen.py
+
+install ext/robin_map/LICENSE %{buildroot}%{python3_sitelib}/nanobind/ext/robin_map/LICENSE
 
 
 %check
