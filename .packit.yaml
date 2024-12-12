@@ -27,14 +27,14 @@ jobs:
   trigger: pull_request
   branch: main
   targets:
-    - fedora-all
+    - all
 
 # Run build for all pushes to main
 - job: copr_build
   trigger: commit
   branch: main
-  owner: "kkleine"
+  owner: kkleine
   project: python-nanobind
   targets:
-    - fedora-all
+    - all
   list_on_homepage: True
