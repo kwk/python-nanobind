@@ -4,9 +4,11 @@
 %global nanobind_giturl https://github.com/wjakob/nanobind
 %global nanobind_src_dir nanobind-%{version}
 
+%global debug_package %{nil}
+
 Name:           python-nanobind
 Version:        2.4.0
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Tiny and efficient C++/Python bindings
 
 License:        BSD-3-Clause
@@ -105,6 +107,9 @@ popd
 
 
 %changelog
+* Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-7
+- Fix: Empty %files file ... debugsourcefiles.list
+
 * Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-6
 - Make main package arched and sub-packages noarch.
 
