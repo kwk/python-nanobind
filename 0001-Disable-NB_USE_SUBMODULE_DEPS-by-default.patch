@@ -1,0 +1,25 @@
+From a58eeadc04cc6db553c4d5072e9fc30c9b8489ee Mon Sep 17 00:00:00 2001
+From: Konrad Kleine <kkleine@redhat.com>
+Date: Fri, 13 Dec 2024 16:53:08 +0100
+Subject: [PATCH] Disable NB_USE_SUBMODULE_DEPS by default
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1507173..2c108ef 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -25,7 +25,7 @@ else()
+ endif()
+ 
+ option(NB_CREATE_INSTALL_RULES "Create installation rules" ${NB_MASTER_PROJECT})
+-option(NB_USE_SUBMODULE_DEPS   "Use the nanobind dependencies shipped as a git submodule of this repository" ON)
++option(NB_USE_SUBMODULE_DEPS   "Use the nanobind dependencies shipped as a git submodule of this repository" OFF)
+ 
+ option(NB_TEST               "Compile nanobind tests?" ${NB_MASTER_PROJECT})
+ option(NB_TEST_STABLE_ABI    "Test the stable ABI interface?" OFF)
+-- 
+2.47.1
+

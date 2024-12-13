@@ -2,7 +2,7 @@
 
 # See ~/.config/mock/<CONFIG>.cfg or /etc/mock/<CONFIG>.cfg
 # Tweak this to centos-stream-9-x86_64 to build for CentOS
-MOCK_CHROOT?=fedora-rawhide-x86_64
+MOCK_CHROOT?=fedora-41-x86_64
 MOCK_OPTS?=
 MOCK_OPTS_DEFAULT?=--no-clean --no-cleanup-after $(MOCK_OPTS)
 YYYYMMDD=$(shell date +%Y%m%d)

@@ -4,24 +4,24 @@
 %global nanobind_giturl https://github.com/wjakob/nanobind
 %global nanobind_src_dir nanobind-%{version}
 
-%global robin_map_giturl https://github.com/Tessil/robin-map
-%global robin_map_commit_sha 188c45569cc2a5dd768077c193830b51d33a5020
-%global robin_map_src_dir robin-map-%{robin_map_commit_sha}
-
 Name:           python-nanobind
 Version:        2.4.0
-Release:        1
+Release:        2
 Summary:        Tiny and efficient C++/Python bindings
 
 License:        BSD-3-Clause AND MIT
 URL:            https://nanobind.readthedocs.org/
 VCS:            git:%{nanobind_giturl}.git
 Source0:        %{nanobind_giturl}/archive/v%{version}/%{name}-%{version}.tar.gz
-Source1:        %{robin_map_giturl}/archive/%{robin_map_commit_sha}.tar.gz
 
 # See https://github.com/wjakob/nanobind/pull/815
 Patch100:       0001-Properly-install-tsl-robin_map-s-interface-sources.patch
 Patch101:       0001-Revert-chore-use-scikit-build-core-0.10-and-auto-min.patch
+
+# TODO(kkleine): This patch is only needed because %%pyproject_wheel
+#                calls cmake and I haven't found out how to set
+#                NB_USE_SUBMODULE_DEPS=OFF for this call.
+Patch102:       0001-Disable-NB_USE_SUBMODULE_DEPS-by-default.patch
 
 BuildArch:      noarch
 
@@ -31,6 +31,7 @@ BuildRequires:  eigen3-devel
 BuildRequires:  librsvg2
 BuildRequires:  ninja-build
 BuildRequires:  python%{python3_pkgversion}-pytest
+BuildRequires:  robin-map-devel >= 1.3.0
 
 %global _description %{expand:
 nanobind is a small binding library that exposes C++ types
@@ -51,32 +52,17 @@ License:        BSD-3-Clause
 %package -n     python%{python3_pkgversion}-nanobind-devel
 Summary:        Development files for nanobind
 License:        BSD-3-Clause
-Requires:       %{name} = %{version}-%{release}
-Requires:       python%{python3_pkgversion}-nanobind-robin-map-devel = %{version}-%{release}
+Requires:       python%{python3_pkgversion}-nanobind = %{version}-%{release}
 %description -n python%{python3_pkgversion}-nanobind-devel
 Development files for nanobind.
 
 
-%package -n     python%{python3_pkgversion}-nanobind-robin-map-devel
-Summary:        C++ implementation of a fast hash map and hash set using robin hood hashing
-License:        MIT
-Requires:       %{name} = %{version}-%{release}
-%description -n python%{python3_pkgversion}-nanobind-robin-map-devel
-The robin-map library is a C++ implementation of a fast hash
-map and hash set using open-addressing and linear robin hood
-hashing with backward shift deletion to resolve collisions.
-
 %prep
-%autosetup -N -T -b 1 -n %{robin_map_src_dir}
-cd ..
-
 %autosetup -N -T -b 0 -n %{nanobind_src_dir}
-%patch -p1 -P101
 %patch -p1 -P100
+%patch -p1 -P101
+%patch -p1 -P102
 cd ..
-
-mv -v %{robin_map_src_dir}/* %{nanobind_src_dir}/ext/robin_map
-
 
 
 %generate_buildrequires
@@ -89,7 +75,6 @@ mv -v %{robin_map_src_dir}/* %{nanobind_src_dir}/ext/robin_map
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_PREFIX=%{python3_sitelib} \
     -DNB_CREATE_INSTALL_RULES=OFF \
-    -DNB_USE_SUBMODULE_DEPS=ON \
     -DNB_TEST_SANITIZERS_ASAN=OFF \
     -DNB_TEST_SANITIZERS_TSAN=OFF \
     -DNB_TEST_SANITIZERS_UBSAN=OFF \
@@ -106,8 +91,6 @@ mv -v %{robin_map_src_dir}/* %{nanobind_src_dir}/ext/robin_map
 rm %{buildroot}%{python3_sitelib}/nanobind/cmake/darwin-ld-cpython.sym
 rm %{buildroot}%{python3_sitelib}/nanobind/cmake/darwin-ld-pypy.sym
 %{__mkdir_p} -v %{buildroot}%{python3_sitelib}/nanobind
-install -m 0755 src/stubgen.py %{buildroot}%{python3_sitelib}/nanobind/stubgen.py
-install ext/robin_map/LICENSE %{buildroot}%{python3_sitelib}/nanobind/ext/robin_map/LICENSE
 
 
 %check
@@ -220,15 +203,9 @@ popd
 %{python3_sitelib}/nanobind/stubgen.py
 
 
-%files -n python%{python3_pkgversion}-nanobind-robin-map-devel
-%license %{python3_sitelib}/nanobind/ext/robin_map/LICENSE
-%dir %{python3_sitelib}/nanobind/ext
-%dir %{python3_sitelib}/nanobind/ext/robin_map
-%dir %{python3_sitelib}/nanobind/ext/robin_map/include
-%dir %{python3_sitelib}/nanobind/ext/robin_map/include/tsl
-%{python3_sitelib}/nanobind/ext/robin_map/include/tsl/*.h
-
-
 %changelog
+* Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-2
+- Do not vendor robin-map but use system package robin-map-devel
+
 * Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-1
 - First release of python-nanobind
