@@ -6,22 +6,18 @@
 
 Name:           python-nanobind
 Version:        2.4.0
-Release:        2
+Release:        3
 Summary:        Tiny and efficient C++/Python bindings
 
-License:        BSD-3-Clause AND MIT
+License:        BSD-3-Clause
 URL:            https://nanobind.readthedocs.org/
 VCS:            git:%{nanobind_giturl}.git
 Source0:        %{nanobind_giturl}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-# See https://github.com/wjakob/nanobind/pull/815
-Patch100:       0001-Properly-install-tsl-robin_map-s-interface-sources.patch
-Patch101:       0001-Revert-chore-use-scikit-build-core-0.10-and-auto-min.patch
-
 # TODO(kkleine): This patch is only needed because %%pyproject_wheel
 #                calls cmake and I haven't found out how to set
 #                NB_USE_SUBMODULE_DEPS=OFF for this call.
-Patch102:       0001-Disable-NB_USE_SUBMODULE_DEPS-by-default.patch
+Patch101:       0001-Disable-NB_USE_SUBMODULE_DEPS-by-default.patch
 
 BuildArch:      noarch
 
@@ -32,6 +28,8 @@ BuildRequires:  librsvg2
 BuildRequires:  ninja-build
 BuildRequires:  python%{python3_pkgversion}-pytest
 BuildRequires:  robin-map-devel >= 1.3.0
+
+Requires:  robin-map-devel >= 1.3.0
 
 %global _description %{expand:
 nanobind is a small binding library that exposes C++ types
@@ -59,10 +57,7 @@ Development files for nanobind.
 
 %prep
 %autosetup -N -T -b 0 -n %{nanobind_src_dir}
-%patch -p1 -P100
 %patch -p1 -P101
-%patch -p1 -P102
-cd ..
 
 
 %generate_buildrequires
@@ -204,6 +199,9 @@ popd
 
 
 %changelog
+* Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-3
+- License and patch cleanup
+
 * Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-2
 - Do not vendor robin-map but use system package robin-map-devel
 
