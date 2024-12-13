@@ -75,7 +75,9 @@ Development files for nanobind.
 
 
 %check
-%_pyproject_check_import_allow_no_modules -t
+%pyproject_check_import
+# Test files are not installed, hence we need
+# to enter the build directory manually.
 pushd %{__cmake_builddir}
 %pytest
 popd
