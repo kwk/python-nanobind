@@ -4,8 +4,6 @@
 %global nanobind_giturl https://github.com/wjakob/nanobind
 %global nanobind_src_dir nanobind-%{version}
 
-%global debug_package %{nil}
-
 Name:           python-nanobind
 Version:        2.4.0
 Release:        7%{?dist}
@@ -16,10 +14,12 @@ URL:            https://nanobind.readthedocs.org/
 VCS:            git:%{nanobind_giturl}.git
 Source0:        %{nanobind_giturl}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-
 # The combination of an arched package with only noarch binary packages makes
 # it easier for us to detect arch-dependent test failures, since the tests will
 # always be run on every platform.
+# Since the package still contains no compiled machine code, we still have no
+# debuginfo.
+%global debug_package %{nil}
 
 BuildRequires:  clang
 BuildRequires:  cmake
