@@ -6,7 +6,7 @@
 
 Name:           python-nanobind
 Version:        2.4.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Tiny and efficient C++/Python bindings
 
 License:        BSD-3-Clause
@@ -82,25 +82,27 @@ popd
 
 
 %files -n python%{python3_pkgversion}-nanobind -f %{pyproject_files}
-%license LICENSE
+%license %{python3_sitelib}/nanobind-%{version}.dist-info/licenses/LICENSE
 %exclude %{python3_sitelib}/nanobind/include
 %exclude %{python3_sitelib}/nanobind/src
 %exclude %{python3_sitelib}/nanobind/cmake
-%exclude %{python3_sitelib}/nanobind/stubgen.py
+%pycached %exclude %{python3_sitelib}/nanobind/stubgen.py
 # Exclude not needed files
 %exclude %{python3_sitelib}/nanobind/cmake/darwin-ld-cpython.sym
 %exclude %{python3_sitelib}/nanobind/cmake/darwin-ld-pypy.sym
 
 
-%files -n python%{python3_pkgversion}-nanobind-devel -f %{pyproject_files}
-%license LICENSE
-%exclude %{python3_sitelib}/nanobind/__*
-%exclude %{python3_sitelib}/nanobind-%{version}.dist-info
-# Exclude not needed files
-%exclude %{python3_sitelib}/nanobind/cmake/darwin-ld-cpython.sym
-%exclude %{python3_sitelib}/nanobind/cmake/darwin-ld-pypy.sym
+%files -n python%{python3_pkgversion}-nanobind-devel
+%{python3_sitelib}/nanobind/include/
+%{python3_sitelib}/nanobind/src/
+%{python3_sitelib}/nanobind/cmake/
+%pycached %{python3_sitelib}/nanobind/stubgen.py
+
 
 %changelog
+* Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-5
+- Better license and files section handling
+
 * Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-4
 - No more manual cmake invocation and proper use of %%pyproject_save_files
 
