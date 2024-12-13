@@ -6,7 +6,7 @@
 
 Name:           python-nanobind
 Version:        2.4.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Tiny and efficient C++/Python bindings
 
 License:        BSD-3-Clause
@@ -14,7 +14,10 @@ URL:            https://nanobind.readthedocs.org/
 VCS:            git:%{nanobind_giturl}.git
 Source0:        %{nanobind_giturl}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-BuildArch:      noarch
+
+# The combination of an arched package with only noarch binary packages makes
+# it easier for us to detect arch-dependent test failures, since the tests will
+# always be run on every platform.
 
 BuildRequires:  clang
 BuildRequires:  cmake
@@ -38,13 +41,13 @@ produce smaller binaries, and have better runtime performance.}
 
 %package -n     python%{python3_pkgversion}-nanobind
 Summary:        %{summary}
-License:        BSD-3-Clause
+BuildArch:      noarch
 %description -n python%{python3_pkgversion}-nanobind %_description
 
 
 %package -n     python%{python3_pkgversion}-nanobind-devel
 Summary:        Development files for nanobind
-License:        BSD-3-Clause
+BuildArch:      noarch
 Requires:       python%{python3_pkgversion}-nanobind = %{version}-%{release}
 %description -n python%{python3_pkgversion}-nanobind-devel
 Development files for nanobind.
@@ -102,6 +105,9 @@ popd
 
 
 %changelog
+* Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-6
+- Make main package arched and sub-packages noarch.
+
 * Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-5
 - Better license and files section handling
 
