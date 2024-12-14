@@ -4,22 +4,22 @@
 %global nanobind_giturl https://github.com/wjakob/nanobind
 %global nanobind_src_dir nanobind-%{version}
 
-Name:           python-nanobind
-Version:        2.4.0
-Release:        7%{?dist}
-Summary:        Tiny and efficient C++/Python bindings
-
-License:        BSD-3-Clause
-URL:            https://nanobind.readthedocs.org/
-VCS:            git:%{nanobind_giturl}.git
-Source0:        %{nanobind_giturl}/archive/v%{version}/%{name}-%{version}.tar.gz
-
 # The combination of an arched package with only noarch binary packages makes
 # it easier for us to detect arch-dependent test failures, since the tests will
 # always be run on every platform.
 # Since the package still contains no compiled machine code, we still have no
 # debuginfo.
 %global debug_package %{nil}
+
+Name:           python-nanobind
+Version:        2.4.0
+Release:        8%{?dist}
+Summary:        Tiny and efficient C++/Python bindings
+
+License:        BSD-3-Clause
+URL:            https://nanobind.readthedocs.org/
+VCS:            git:%{nanobind_giturl}.git
+Source0:        %{nanobind_giturl}/archive/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:  clang
 BuildRequires:  cmake
@@ -28,8 +28,6 @@ BuildRequires:  librsvg2
 BuildRequires:  ninja-build
 BuildRequires:  python%{python3_pkgversion}-pytest
 BuildRequires:  robin-map-devel >= 1.3.0
-
-Requires:  robin-map-devel >= 1.3.0
 
 %global _description %{expand:
 nanobind is a small binding library that exposes C++ types
@@ -51,12 +49,15 @@ BuildArch:      noarch
 Summary:        Development files for nanobind
 BuildArch:      noarch
 Requires:       python%{python3_pkgversion}-nanobind = %{version}-%{release}
+# Anyone who uses the devel package will need robin-map-devel package,
+# which is why this is a runtime dependency here.
+Requires:       robin-map-devel >= 1.3.0
 %description -n python%{python3_pkgversion}-nanobind-devel
 Development files for nanobind.
 
 
 %prep
-%autosetup -N -T -b 0 -n %{nanobind_src_dir}
+%autosetup -n %{nanobind_src_dir}
 
 
 %generate_buildrequires
@@ -107,8 +108,11 @@ popd
 
 
 %changelog
+* Sat Dec 14 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-8
+- Requirement and %%autosetup cleanup
+
 * Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-7
-- Fix: Empty %files file ... debugsourcefiles.list
+- Fix: Empty %%files file ... debugsourcefiles.list
 
 * Fri Dec 13 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-6
 - Make main package arched and sub-packages noarch.
