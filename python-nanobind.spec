@@ -13,7 +13,7 @@
 
 Name:           python-nanobind
 Version:        2.4.0
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        Tiny and efficient C++/Python bindings
 
 License:        BSD-3-Clause
@@ -26,6 +26,7 @@ BuildRequires:  cmake
 BuildRequires:  eigen3-devel
 BuildRequires:  librsvg2
 BuildRequires:  ninja-build
+BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-pytest
 BuildRequires:  robin-map-devel >= 1.3.0
 
@@ -58,6 +59,7 @@ Development files for nanobind.
 
 %prep
 %autosetup -n %{nanobind_src_dir}
+%py3_shebang_fix src/stubgen.py
 
 
 %generate_buildrequires
@@ -108,6 +110,10 @@ popd
 
 
 %changelog
+* Thu Dec 19 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-9
+- Add python3-devel
+- Fix shebang in src/stubgen.py
+
 * Sat Dec 14 2024 Konrad Kleine <kkleine@redhat.com> - 2.4.0-8
 - Requirement and %%autosetup cleanup
 
